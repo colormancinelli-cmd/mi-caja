@@ -1,0 +1,38 @@
+MI CAJA - SINCRONIZACIÓN CON FIREBASE
+
+Esta rama de prueba todavía NO está publicada en GitHub Pages.
+No actualices la rama main hasta terminar los pasos.
+
+1. Abrí Firebase Console > mi-caja-personal.
+2. Authentication > Sign-in method > Email/Password > Activar > Guardar.
+3. Authentication > Settings > Authorized domains: agregá colormancinelli-cmd.github.io
+   si no está en la lista. No agregues https:// ni rutas.
+4. Firestore Database > Crear base de datos > plan Standard, modo producción.
+   Elegí una región y conservá la seleccionada.
+5. Firestore Database > Rules: REEMPLAZÁ las reglas con el contenido
+   exacto de REGLAS_FIRESTORE.txt y hacé clic en Publicar.
+6. En la solicitud de cambios (Pull Request) de GitHub, después de revisar y
+   aprobar, elegí Merge pull request. Esto publicará la versión nueva.
+7. Abrí la página publicada de Mi Caja y actualizá. Si la tenías instalada,
+   cerrala y volvé a abrirla cuando GitHub Pages termine de desplegar.
+8. Elegí Crear mi cuenta, registrate con correo y contraseña.
+   Para usar en PC y celular, ingresá con LA MISMA cuenta en ambos.
+9. Si tenés gastos anteriores: ANTES de actualizar, abrí la versión vieja
+   en el mismo navegador donde cargaste tus gastos y descargá
+   Ajustes > Copia completa (.json). Guardá el archivo fuera del navegador.
+   Después de ingresar a la versión nueva, Ajustes > Restaurar copia.
+   La importación AGREGA los movimientos, actualiza coincidencias por ID
+   y REEMPLAZA los saldos iniciales por los del respaldo.
+10. Probá con un pequeño gasto desde el celular y confirmá que aparezca
+    también en PC. Hacé respaldos periódicos.
+
+NOTAS
+- La aplicación guarda los movimientos en Firestore, no en GitHub.
+- Cada usuario autenticado tiene un conjunto privado de movimientos.
+- El código/configuración pública de Firebase en GitHub no es secreto.
+- Nunca pegues contraseñas privadas en GitHub ni aquí.
+- Requiere conexión a Internet para crear/editar/borrar movimientos;
+  el proyecto no está diseñado para edición offline.
+- Firebase puede tener límites de uso; revisalos en su consola.
+- No importes respaldos diferentes de varios dispositivos sin revisarlos:
+  los ID duplicados se actualizan y los saldos iniciales se reemplazan.
