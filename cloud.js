@@ -267,6 +267,10 @@ window.miCajaCloud = {
       batch.set(entryDoc(e.id),e);
     }
     batch.set(doc(db,"users",user.uid,"meta","config"),config);
+    const opening={...cloudOpening};
+    for(const acc of config.accounts) opening[acc.id]??=0;
+    for(const id of Object.keys(opening))if(!config.accounts.some(a=>a.id===id))delete opening[id];
+    batch.set(doc(db,"users",user.uid,"meta","opening"),opening);
     await batch.commit();
   },
   async deleteAll(entries) {
