@@ -1,0 +1,59 @@
+MI CAJA — INSTRUCCIONES DESDE CERO
+================================
+
+QUÉ HACE
+- Registrá gastos, ingresos y transferencias.
+- Consultá saldo total, efectivo, banco y billetera.
+- Mirá ingresos y gastos del mes y un gráfico de seis meses.
+- Filtrá, buscá, editá y eliminá movimientos.
+- Exportá copias de seguridad JSON y archivos CSV para Excel.
+
+1) PROBAR EN TU COMPUTADORA
+- Descomprimí mi-caja.zip, entrá en la carpeta mi-caja.
+- Hacé doble clic en index.html para abrirlo en Chrome o Edge.
+- En Ajustes, escribí tus saldos iniciales.
+- Tocá «Nuevo movimiento» para cargar un gasto.
+- Podés usar «Cargar ejemplo» para probar sin usar tus datos reales.
+
+2) SUBIR GRATIS PARA ABRIR LA MISMA APP EN PC Y CELULAR
+- Abrí https://github.com/ y creá una cuenta gratuita.
+- Creá un repositorio NUEVO, por ejemplo mi-caja. Elegí Public.
+- En «Add file» -> «Upload files», subí TODOS los archivos de la carpeta
+  mi-caja (index.html, manifest.webmanifest, sw.js y los dos íconos PNG).
+- Hacé clic en «Commit changes».
+- Abrí «Settings» -> «Pages».
+- En «Build and deployment», seleccioná «Deploy from a branch».
+- Seleccioná «main» y «/(root)», luego «Save».
+- Cuando GitHub indique la dirección, abrila en PC y celular.
+  Se verá aproximadamente así:
+  https://TU-USUARIO.github.io/mi-caja/
+
+3) INSTALAR COMO APP
+- Android / Chrome: abrí la URL publicada, menú ⋮ -> Instalar app
+  (en algunos teléfonos, «Añadir a pantalla principal»).
+- iPhone / Safari: abrí la URL, Compartir -> Añadir a pantalla de inicio.
+- Chrome en PC: usá el botón de instalar de la barra de direcciones,
+  si está disponible. Si no, seguí usándola desde el navegador.
+
+IMPORTANTE SOBRE LOS DATOS
+- Esta versión GUARDA LOCALMENTE en el navegador de CADA dispositivo.
+- Abrir la misma dirección en PC y celular NO sincroniza los movimientos.
+- Para pasar datos entre dispositivos, en Ajustes descargá «Copia
+  completa (.json)» y en el otro importá «Restaurar copia».
+- La importación REEMPLAZA los datos del dispositivo donde se importa.
+  Si cargaste cosas diferentes en ambos, no combina movimientos.
+- Si usaste index.html directamente en tu computadora y luego pasás
+  a la URL online, hacé copia JSON y restaurala en la URL nueva.
+- Si borrás datos del navegador, perdés los registros sin respaldo.
+- La versión con sincronización automática exige sumar una base de
+  datos online y un inicio de sesión; se puede hacer después.
+- Los datos nunca van dentro de los archivos que subís a GitHub.
+  El código será público; tus movimientos locales, no.
+- No es una app de banco ni conecta con tus cuentas financieras.
+
+4) EDITAR CON CHATGPT
+- Podés enviar index.html a ChatGPT y pedirle modificaciones concretas.
+- Podés abrirlo con Visual Studio Code, que es gratuito.
+- Si cambiás los archivos online, subí la nueva versión a GitHub.
+
+Servicio gratuito utilizado: GitHub Pages (con sus límites).
