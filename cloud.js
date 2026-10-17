@@ -31,6 +31,8 @@ let cloudEntries = [];
 let cloudOpening = { cash: 0, bank: 0, wallet: 0 };
 let entriesLoaded = false;
 let openingLoaded = false;
+let configLoaded = false;
+let cloudConfig = null;
 let hasError = false;
 
 function showError(message) {
@@ -66,7 +68,7 @@ function reportCloudError(err) {
   showError(friendlyError(err));
 }
 function publish() {
-  if (!user || hasError || !entriesLoaded || !openingLoaded) return;
+  if (!user || hasError || !entriesLoaded || !openingLoaded || !configLoaded) return;
   ready = true;
   gate.hidden = true;
   document.body.classList.remove("cloud-locked");
@@ -75,7 +77,9 @@ function publish() {
   window.miCajaUi.applyState({
     version: 1,
     opening: cloudOpening,
-    entries: cloudEntries
+    entries: cloudEntries,
+    accounts: cloudConfig.accounts,
+    categories: cloudConfig.categories
   });
 }
 function detach() {
@@ -83,6 +87,8 @@ function detach() {
   unsubscribe = [];
   entriesLoaded = false;
   openingLoaded = false;
+  configLoaded = false;
+  cloudConfig = null;
   cloudEntries = [];
   cloudOpening = { cash: 0, bank: 0, wallet: 0 };
   ready = false;
@@ -93,11 +99,19 @@ function validRemoteEntry(item) {
     Number.isSafeInteger(item.amount) && item.amount > 0 &&
     typeof item.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(item.date) &&
     typeof item.description === "string" && typeof item.category === "string" &&
-    ["cash","bank","wallet"].includes(item.account) &&
-    (item.type !== "transfer" || ["cash","bank","wallet"].includes(item.toAccount));
+    typeof item.account === 'string' && /^[a-zA-Z0-9_-]{1,50}$/.test(item.account) &&
+    (item.type !== "transfer" || typeof item.toAccount === 'string' && /^[a-zA-Z0-9_-]{1,50}$/.test(item.toAccount));
+}
+function validConfig(c) {
+ const ids=new Set();
+ return c&&Array.isArray(c.accounts)&&c.accounts.length>=1&&c.accounts.length<=40&&
+ c.accounts.every(a=>a&&typeof a.id==='string'&&/^[a-zA-Z0-9_-]{1,50}$/.test(a.id)&&
+ typeof a.name==='string'&&a.name.length>=1&&a.name.length<=50&&typeof a.emoji==='string'&&a.emoji.length<=8&&!ids.has(a.id)&&!!ids.add(a.id))&&
+ c.categories&&['expense','income'].every(t=>Array.isArray(c.categories[t])&&c.categories[t].length>=1&&c.categories[t].length<=80&&
+ c.categories[t].every(x=>typeof x==='string'&&x.length>=1&&x.length<=50));
 }
 function validOpening(o) {
-  return o && ["cash","bank","wallet"].every(k => Number.isSafeInteger(o[k]) && Math.abs(o[k]) < 1e13);
+  return o && Object.values(o).every(v => Number.isSafeInteger(v) && Math.abs(v)<1e13);
 }
 function attach(uid) {
   detach();
@@ -115,13 +129,19 @@ function attach(uid) {
       entriesLoaded = true;
       publish();
     }, reportCloudError));
+    unsubscribe.push(onSnapshot(doc(db,"users",uid,"meta","config"), snap => {
+      const defaults={accounts:[{id:'cash',name:'Efectivo',emoji:'💵'},{id:'bank',name:'Banco',emoji:'🏦'},{id:'wallet',name:'Billetera',emoji:'📱'}],categories:{expense:['Supermercado','Comida','Transporte','Hogar','Servicios','Salud','Salidas','Compras','Educación','Otros'],income:['Sueldo','Ventas','Reintegros','Regalos','Otros']}};
+      const c=snap.exists()?snap.data():defaults;
+      if(!validConfig(c)){reportCloudError(new Error('Configuración inválida'));return}
+      cloudConfig=c;configLoaded=true;publish();
+    },reportCloudError));
     unsubscribe.push(onSnapshot(doc(db, "users", uid, "meta", "opening"), snap => {
       const opening = snap.exists() ? snap.data() : { cash: 0, bank: 0, wallet: 0 };
       if (!validOpening(opening)) {
         reportCloudError(new Error("Los saldos iniciales no tienen un formato válido."));
         return;
       }
-      cloudOpening = {cash: opening.cash, bank: opening.bank, wallet: opening.wallet};
+      cloudOpening = {...opening};
       openingLoaded = true;
       publish();
     }, reportCloudError));
@@ -232,6 +252,26 @@ window.miCajaCloud = {
       }
       await batch.commit();
     }
+  },
+  async saveConfig(patch,renameEntries=[]) {
+    checkReady();
+    const config={...cloudConfig,...patch};
+    if(!validConfig(config))throw new Error("Configuración inválida.");
+    for(const a of cloudConfig.accounts){
+      if(!config.accounts.some(b=>b.id===a.id) && (cloudEntries.some(e=>e.account===a.id||e.toAccount===a.id)||cloudOpening[a.id]))throw new Error("La cuenta todavía se utiliza.");
+    }
+    if(renameEntries.length>350)throw new Error("Hay muchos movimientos para renombrar de una vez. Solicitá una migración por lotes.");
+    const batch=writeBatch(db);
+    for(const e of renameEntries){
+      if(!validRemoteEntry(e))throw new Error("Movimiento inválido.");
+      batch.set(entryDoc(e.id),e);
+    }
+    batch.set(doc(db,"users",user.uid,"meta","config"),config);
+    const opening={...cloudOpening};
+    for(const acc of config.accounts) opening[acc.id]??=0;
+    for(const id of Object.keys(opening))if(!config.accounts.some(a=>a.id===id))delete opening[id];
+    batch.set(doc(db,"users",user.uid,"meta","opening"),opening);
+    await batch.commit();
   },
   async deleteAll(entries) {
     checkReady();

@@ -24,21 +24,31 @@ service cloud.firestore {
           && request.resource.data.date.size() == 10
           && request.resource.data.category is string
           && request.resource.data.category.size() <= 100
-          && request.resource.data.account in ['cash','bank','wallet']
+          && request.resource.data.account is string
           && request.resource.data.toAccount is string
           && request.resource.data.createdAt is string;
         allow delete: if request.auth != null && request.auth.uid == userId;
       }
 
+      match /meta/config {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create, update: if request.auth != null && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly(['accounts','categories'])
+          && request.resource.data.keys().hasAll(['accounts','categories'])
+          && request.resource.data.accounts is list
+          && request.resource.data.accounts.size() > 0
+          && request.resource.data.accounts.size() <= 40
+          && request.resource.data.categories is map
+          && request.resource.data.categories.keys().hasOnly(['expense','income'])
+          && request.resource.data.categories.expense is list
+          && request.resource.data.categories.income is list;
+        allow delete: if false;
+      }
       match /meta/opening {
         allow read: if request.auth != null && request.auth.uid == userId;
         allow create, update: if request.auth != null
           && request.auth.uid == userId
-          && request.resource.data.keys().hasOnly(['cash','bank','wallet'])
-          && request.resource.data.keys().hasAll(['cash','bank','wallet'])
-          && request.resource.data.cash is int
-          && request.resource.data.bank is int
-          && request.resource.data.wallet is int;
+          && request.resource.data.size() <= 40;
         allow delete: if false;
       }
     }
