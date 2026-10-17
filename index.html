@@ -20,6 +20,54 @@
     dialog{width:min(480px,calc(100% - 22px));max-height:min(90vh,780px);overflow:auto;background:var(--panel);color:var(--text);border:1px solid #39475b;border-radius:22px;padding:0;box-shadow:0 26px 75px #0009}dialog::backdrop{background:rgba(0,0,0,.7);backdrop-filter:blur(3px)}.dialog-top{padding:22px 22px 10px;display:flex;justify-content:space-between;align-items:center}.dialog-top h2{font-size:20px;letter-spacing:-.5px;margin:0}.close{font-size:24px;background:transparent;border:0;color:var(--sub);line-height:1;padding:3px}.dialog-body{padding:12px 22px 24px}.segment{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:5px;background:#0c1623;border:1px solid var(--line);border-radius:12px;margin-bottom:18px}.segment button{border:0;border-radius:9px;background:transparent;padding:10px 3px;color:var(--sub);font-size:12px;font-weight:750}.segment button.active{background:#2a3850;color:var(--text)}.field{margin-bottom:14px}.field label{display:block;margin-bottom:7px;color:#bcc8d6;font-size:12px;font-weight:650}.control{background:#0d1826;border:1px solid #354257;border-radius:11px;color:var(--text);width:100%;padding:13px 12px;font-size:15px;min-height:48px}.control::placeholder{color:#64768c}.amount-input{font-size:29px;font-weight:800;letter-spacing:-1px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.submit{width:100%;padding:14px;margin-top:7px}.setting-section{border-bottom:1px solid var(--line);padding-bottom:17px;margin-bottom:17px}.setting-section:last-child{border-bottom:0;padding-bottom:0;margin-bottom:0}.setting-section h3{margin:0 0 8px;font-size:14px}.setting-section p{margin:0 0 13px;font-size:12px;color:var(--sub);line-height:1.6}.setting-grid{display:flex;gap:9px;flex-wrap:wrap}.settings-bal{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:8px;margin:9px 0}.settings-bal label{font-size:13px}.settings-bal input{min-width:0}.warning{color:#ffb0b9!important}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 17px;background:#d9fff4;color:#10241e;font-size:13px;font-weight:720;border-radius:14px;box-shadow:0 9px 30px #0007;max-width:calc(100vw - 32px);z-index:100;display:none}.toast.visible{display:block}.footer{margin:22px 0 0;color:#60718b;text-align:center;font-size:11px}.bottom-add{display:none}
     @media(max-width:830px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.tile-main{grid-column:span 2}.content{grid-template-columns:1fr}.entry-list{max-height:none}.wallets{grid-template-columns:repeat(3,minmax(0,1fr))}}
     @media(max-width:520px){.shell{padding:19px 13px 110px}.top{margin-bottom:25px}.brand strong{font-size:18px}.brand small{font-size:11px}.head-actions .btn-main{display:none}.head-actions .btn{padding:10px}.intro h1{font-size:25px}.intro{align-items:start}.intro .chip{font-size:10px;max-width:124px;white-space:normal;text-align:center}.summary{gap:9px}.tile{padding:16px;border-radius:16px}.tile-main .value{font-size:33px}.tile .value{font-size:21px}.tile .foot{font-size:11px}.wallets{gap:7px}.wallet{padding:10px}.wallet .label{font-size:10px}.wallet .amount{font-size:13px}.card{padding:15px}.section-head{flex-wrap:wrap}.entry{gap:7px}.entry-name{font-size:12px}.entry-amount{font-size:12px}.entry-meta{font-size:10px}.entry-actions .icon-btn{padding:4px}.bottom-add{display:block;position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));right:18px;z-index:10;background:var(--mint);color:#072b25;border:0;border-radius:18px;padding:15px 19px;font-weight:800;box-shadow:0 8px 30px #0009,0 2px 10px #4bdfbc55}.footer{padding-right:115px;text-align:left}}
+
+    /* Mobile layout: preserve desktop layout and eliminate horizontal overflow. */
+    html,body{max-width:100%;overflow-x:clip}
+    .shell,.top,.head-actions,.intro,.content,.stack,.section-head,.tools,.field,.form-row,.settings-bal{min-width:0}
+    .settings-bal>span{min-width:0;overflow-wrap:anywhere}
+    .settings-bal>span:last-child{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:5px}
+    .settings-bal>span .btn{margin:0;flex-shrink:0}
+    @media(max-width:600px){
+      .shell{width:100%;padding:14px 12px calc(100px + env(safe-area-inset-bottom))}
+      .top{flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:19px}
+      .brand{min-width:0;flex:1 1 130px}
+      .brand>div:last-child{min-width:0}
+      .head-actions{flex:1 1 100%;width:100%;gap:7px;justify-content:flex-end;flex-wrap:wrap}
+      #accountBadge{margin-right:auto;max-width:100%!important;min-width:0;white-space:normal;overflow-wrap:anywhere}
+      .head-actions .btn{font-size:12px;padding:9px 10px}
+      .intro{flex-wrap:wrap;gap:8px}.intro h1{font-size:clamp(20px,6vw,25px)}
+      .intro .chip{max-width:100%;white-space:normal}
+      .summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .summary .tile-main{grid-column:1/-1}
+      .summary .tile{min-width:0;padding:13px}
+      .summary .tile .value{font-size:clamp(17px,5vw,22px);white-space:normal;overflow-wrap:anywhere}
+      .summary .tile-main .value{font-size:clamp(25px,8vw,35px)}
+      .content,.stack{width:100%;min-width:0}
+      .wallets{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .section-head{align-items:start}.tools{flex-wrap:wrap;width:100%}
+      .tools .select{max-width:none;flex:1 1 110px}
+      .entry{flex-wrap:wrap;gap:6px}
+      .entry-body{flex:1 1 95px}
+      .entry-amount{max-width:100%;white-space:normal;text-align:right;overflow-wrap:anywhere}
+      .entry-actions{flex-shrink:0}
+      dialog{box-sizing:border-box;width:calc(100vw - 18px);max-width:480px;max-height:calc(100dvh - 24px);margin:auto;border-radius:17px}
+      .dialog-top{padding:17px 15px 8px}.dialog-body{padding:12px 15px 20px}
+      .form-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+      .form-row .control{font-size:16px;min-width:0}
+      .segment{gap:3px}.segment button{font-size:11px;min-width:0;padding:11px 2px}
+      .settings-bal{grid-template-columns:minmax(0,1fr);gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}
+      .settings-bal>span:last-child{justify-content:flex-start}
+      .setting-grid>.btn{flex:1 1 130px}
+      #calculator{max-width:100%;overflow:hidden}
+      #calcKeys{min-width:0}
+      #calcKeys .btn{min-width:0;padding:9px 3px}
+      .bottom-add{right:12px;bottom:calc(12px + env(safe-area-inset-bottom))}
+    }
+    @media(max-width:360px){
+      .form-row{grid-template-columns:minmax(0,1fr)}
+      .wallets{grid-template-columns:minmax(0,1fr)}
+      .entry-amount{font-size:11px}
+    }
     @media(prefers-reduced-motion:reduce){*{transition:none!important}}
   </style>
 </head>
