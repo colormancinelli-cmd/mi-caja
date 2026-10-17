@@ -51,7 +51,7 @@
   <div class="dialog-top"><h2 id="movementTitle">Nuevo movimiento</h2><button type="button" class="close" data-close="movementDialog" aria-label="Cerrar">×</button></div>
   <form id="movementForm" class="dialog-body">
     <div class="segment" id="typeSegment"><button type="button" data-type="expense" class="active">− Gasto</button><button type="button" data-type="income">+ Ingreso</button><button type="button" data-type="transfer">⇄ Transferir</button></div>
-    <div class="field"><label for="amount">Importe en pesos</label><input required id="amount" class="control amount-input" inputmode="decimal" placeholder="0" autocomplete="off"/></div>
+    <div class="field"><label for="amount">Importe en pesos</label><div style="display:flex;gap:8px;align-items:center"><input required id="amount" class="control amount-input" inputmode="decimal" placeholder="0" autocomplete="off" style="min-width:0;flex:1"/><button id="openCalculator" class="btn" type="button" aria-label="Abrir calculadora">🧮</button></div><div id="calculator" hidden style="border:1px solid #39475b;border-radius:14px;padding:12px;margin-top:8px;background:var(--panel2)"><div id="calcHistory" style="font-size:12px;text-align:right;min-height:22px;color:var(--muted)" aria-live="polite"></div><div id="calcScreen" style="font-size:26px;font-weight:700;text-align:right;padding:6px;overflow-wrap:anywhere">0</div><div id="calcKeys" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px"></div><button id="calcApply" type="button" class="btn btn-main" style="width:100%;margin-top:9px">Usar resultado como importe</button></div></div>
     <div class="field"><label for="description">Descripción (opcional)</label><input id="description" class="control" maxlength="100" placeholder="Ej. Supermercado, sueldo, café…" /></div>
     <div class="form-row"><div class="field"><label for="date">Fecha</label><input type="date" required id="date" class="control" /></div><div class="field" id="categoryField"><label for="category">Categoría</label><select id="category" class="control"></select></div></div>
     <div class="form-row"><div class="field"><label for="account" id="accountLabel">Cuenta</label><select id="account" class="control"></select></div><div class="field" id="toAccountField" hidden><label for="toAccount">A la cuenta</label><select id="toAccount" class="control"></select></div></div>
@@ -117,7 +117,7 @@ function renderEntries(){let list=state.entries.slice();if($('periodFilter').val
 if(!list.length){$('entries').innerHTML='<div class="empty"><b>🧾</b><strong>Sin movimientos</strong><span>Usá «＋ Agregar» para registrar tu primer gasto o ingreso.</span></div>';return}
 $('entries').innerHTML=list.map(e=>{const future=e.date>today(),isTransfer=e.type==='transfer',name=e.description|| (isTransfer?'Transferencia':e.category);const icon=isTransfer?'⇄':(EMOJIS[e.category]||'💰');const signe=e.type==='expense'?'-':e.type==='income'?'+':'';const cls=e.type==='expense'?'negative':e.type==='income'?'positive':'';const fmtDate=new Intl.DateTimeFormat('es-AR',{day:'2-digit',month:'short'}).format(new Date(e.date+'T12:00:00'));const acc=ACCOUNTS.find(a=>a.id===e.account)?.name||e.account;const second=isTransfer?acc+' → '+(ACCOUNTS.find(a=>a.id===e.toAccount)?.name||e.toAccount):e.category+' · '+acc;return `<div class="entry"><div class="entry-icon">${icon}</div><div class="entry-body"><div class="entry-name" title="${escape(name)}">${escape(name)}</div><div class="entry-meta">${fmtDate} · ${escape(second)}${future?' · ⏳ Programado':''}</div></div><div class="entry-amount ${cls}">${signe}${money(e.amount)}</div><div class="entry-actions"><button class="icon-btn" title="Editar" aria-label="Editar ${escape(name)}" data-edit="${escape(e.id)}">✎</button><button class="icon-btn" title="Eliminar" aria-label="Eliminar ${escape(name)}" data-delete="${escape(e.id)}">×</button></div></div>`}).join('')}
 function updateTypes(){document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type===formType));$('categoryField').hidden=formType==='transfer';$('toAccountField').hidden=formType!=='transfer';$('accountLabel').textContent=formType==='transfer'?'Desde la cuenta':'Cuenta';$('category').innerHTML=(CATS[formType]||[]).map(c=>`<option value="${c}">${c}</option>`).join('');$('saveBtn').textContent=editingId?'Guardar cambios':formType==='income'?'Guardar ingreso':formType==='transfer'?'Guardar transferencia':'Guardar gasto'}
-function openMovement(type='expense',entry=null){editingId=entry?.id||null;formType=entry?.type||type;$('movementForm').reset();$('date').value=entry?.date||today();$('amount').value=entry?String(entry.amount/100).replace('.',','):'';$('description').value=entry?.description||'';$('account').innerHTML=ACCOUNTS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');$('toAccount').innerHTML=ACCOUNTS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');updateTypes();$('account').value=entry?.account||'cash';$('toAccount').value=entry?.toAccount||'bank';if(entry&&formType!=='transfer')$('category').value=entry.category;$('movementTitle').textContent=editingId?'Editar movimiento':'Nuevo movimiento';$('movementDialog').showModal();setTimeout(()=>$('amount').focus(),40)}
+function openMovement(type='expense',entry=null){$('calculator').hidden=true;resetCalc();editingId=entry?.id||null;formType=entry?.type||type;$('movementForm').reset();$('date').value=entry?.date||today();$('amount').value=entry?String(entry.amount/100).replace('.',','):'';$('description').value=entry?.description||'';$('account').innerHTML=ACCOUNTS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');$('toAccount').innerHTML=ACCOUNTS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');updateTypes();$('account').value=entry?.account||'cash';$('toAccount').value=entry?.toAccount||'bank';if(entry&&formType!=='transfer')$('category').value=entry.category;$('movementTitle').textContent=editingId?'Editar movimiento':'Nuevo movimiento';$('movementDialog').showModal();setTimeout(()=>$('amount').focus(),40)}
 async function saveMovement(ev){ev.preventDefault();const value=parseAmount($('amount').value);if(value===null){alert('Ingresá un importe válido. Ejemplo: 12500 o 12500,50');$('amount').focus();return}if(!validDate($('date').value)){alert('Ingresá una fecha válida');return}if(formType==='transfer'&&$('account').value===$('toAccount').value){alert('Elegí dos cuentas diferentes para transferir.');return}const old=state.entries.find(e=>e.id===editingId);const entry={id:editingId||('m'+Date.now()+'-'+Math.random().toString(36).slice(2,8)),type:formType,amount:value,description:$('description').value.trim(),date:$('date').value,category:formType==='transfer'?'Transferencia':$('category').value,account:$('account').value,toAccount:formType==='transfer'?$('toAccount').value:'',createdAt:old?.createdAt||new Date().toISOString()};try{ $('saveBtn').disabled=true;await window.miCajaCloud.saveEntry(entry);$('movementDialog').close();notify('Movimiento sincronizado ✓')}catch(e){alert(e.message)}finally{$('saveBtn').disabled=false}}
 function openSettings(){renderConfig();$('openingFields').innerHTML=ACCOUNTS.map(a=>`<div class="settings-bal"><label for="bal_${a.id}">${a.emoji} ${a.name}</label><input id="bal_${a.id}" class="control" inputmode="decimal" value="${(state.opening[a.id]||0)/100}" /></div>`).join('');$('settingsDialog').showModal()}
 async function saveBalances(){const b={};for(const a of ACCOUNTS){const v=parseOpening($('bal_'+a.id).value);if(v===null){alert('Revisá el saldo inicial de '+a.name);return}b[a.id]=v}try{await window.miCajaCloud.saveOpening(b);$('settingsDialog').close();notify('Saldos sincronizados')}catch(e){alert(e.message)}}
@@ -176,6 +176,70 @@ async function configAction(action,key){
   notify('Configuración sincronizada ✓');
  }catch(e){alert(e.message)}
 }
+
+
+let calcValue='0',calcPrevious=null,calcOperator=null,calcFresh=false;
+const calcFormat=c=>new Intl.NumberFormat('es-AR',{minimumFractionDigits:0,maximumFractionDigits:2}).format(c/100);
+function resetCalc(){calcValue='0';calcPrevious=null;calcOperator=null;calcFresh=false;drawCalc()}
+function calcCents(){const n=parseAmount(calcValue);return n===null?(calcValue==='0'?0:null):n}
+function drawCalc(){
+ const cents=calcCents();
+ $('calcScreen').textContent=cents===null?calcValue:calcFormat(cents);
+ $('calcHistory').textContent=calcPrevious===null?'':calcFormat(calcPrevious)+' '+calcOperator;
+}
+function calculate(a,b,op){
+ if(op==='+')return a+b;
+ if(op==='-')return a-b;
+ if(op==='×')return Math.round(a*b/100);
+ if(op==='÷')return b===0?null:Math.round(a*100/b);
+ return b;
+}
+function calcKey(key){
+ if(key==='C'){resetCalc();return}
+ if(key==='⌫'){calcValue=calcFresh?'0':calcValue.slice(0,-1)||'0';calcFresh=false;drawCalc();return}
+ if(/^[0-9]$/.test(key)){
+  if(calcFresh){calcValue='0';calcFresh=false}
+  const digits=calcValue.replace(/\D/g,'');
+  if(digits.length>=12)return;
+  calcValue=calcValue==='0'?key:calcValue+key;drawCalc();return;
+ }
+ if(key===','){
+  if(calcFresh){calcValue='0';calcFresh=false}
+  if(!calcValue.includes(','))calcValue+=',';drawCalc();return;
+ }
+ const value=calcCents();
+ if(value===null)return;
+ if(['+','-','×','÷'].includes(key)){
+  let result=value;
+  if(calcPrevious!==null&&!calcFresh){
+   result=calculate(calcPrevious,value,calcOperator);
+   if(result===null||result<0||!Number.isSafeInteger(result)||result>=1e13){alert('El resultado no es un importe válido.');resetCalc();return}
+  }
+  calcPrevious=result;calcOperator=key;
+  calcValue=(result/100).toFixed(2).replace('.',',');
+  calcFresh=true;drawCalc();return;
+ }
+ if(key==='='){
+  if(calcPrevious===null||calcOperator===null)return;
+  const result=calculate(calcPrevious,value,calcOperator);
+  if(result===null||result<0||!Number.isSafeInteger(result)||result>=1e13){alert('No se puede usar ese resultado.');resetCalc();return}
+  calcValue=(result/100).toFixed(2).replace('.',',');
+  calcPrevious=null;calcOperator=null;calcFresh=true;drawCalc();
+ }
+}
+$('calcKeys').innerHTML=['7','8','9','÷','4','5','6','×','1','2','3','-','C','0',',','+','⌫','='].map(k=>'<button class="btn" type="button" data-calc="'+k+'" style="min-height:46px;font-size:19px;grid-column:'+ (k==='='?'span 3':'span 1')+'">'+k+'</button>').join('');
+$('calcKeys').addEventListener('click',e=>{const key=e.target.closest('[data-calc]')?.dataset.calc;if(key)calcKey(key)});
+$('openCalculator').addEventListener('click',()=>{
+ const el=$('calculator');el.hidden=!el.hidden;
+ if(!el.hidden){resetCalc();const amount=parseAmount($('amount').value);if(amount!==null){calcValue=(amount/100).toFixed(2).replace('.',',');drawCalc()}}
+});
+$('calcApply').addEventListener('click',()=>{
+ if(calcPrevious!==null)calcKey('=');
+ const amount=calcCents();
+ if(amount===null||amount<=0){alert('Calculá un resultado mayor a cero.');return}
+ $('amount').value=(amount/100).toFixed(2).replace('.',',');
+ $('calculator').hidden=true;
+});
 
 render();window.miCajaUi={applyState(next){if(next.accounts&&next.categories){ACCOUNTS=next.accounts;CATS=next.categories}if(isState(next)){state={version:1,opening:next.opening,entries:next.entries};render();if($('settingsDialog').open)renderConfig()}else alert('Firebase devolvió datos inválidos')}};
 document.querySelectorAll('[data-new]').forEach(btn=>btn.addEventListener('click',()=>openMovement(btn.dataset.new)));
